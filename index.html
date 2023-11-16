@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+    }
+
+    canvas {
+      display: block;
+    }
+  </style>
+  <title>Poo Scoot Boogie</title>
+</head>
+<body>
+  <h2>You're stuck in a scooter factory run by toddlers and poo is heading directly for you! Get out of there!</h2>
+  <canvas id="gameCanvas" width="800" height="600"></canvas>
+  <script>
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+
+    const playerImg = new Image();
+    playerImg.src = 'player.png';
+
+    const debrisImg = new Image();
+    debrisImg.src = 'debris.png';
+
+    const player = {
+      x: 50,
+      y: canvas.height - 40,
+      width: 50,
+      height: 50,
+      speed: 5,
+      jumping: false,
+    };
+
+    const debris = {
+      x: canvas.width,
+      y: canvas.height - 40,
+      width: 20,
+      height: 10,
+      speed: 5,
+    };
+
+    let debrisCounter = 0;
+    let gameOver = false;
+    let debrisInterval;
+
+  const backgroundImg = new Image();
+backgroundImg.src = 'background.jpg'; // Replace with your background image URL
+
+// Initial position of the background
+let backgroundX = 0;
+
+function draw() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  // Draw the scrolling background
+  ctx.drawImage(backgroundImg, backgroundX, 0, canvas.width, canvas.height);
+  ctx.drawImage(backgroundImg, backgroundX + canvas.width, 0, canvas.width, canvas.height);
+
+  // Move the background
+  backgroundX -= debris.speed;
+
+  // Repeat the background
+  if (backgroundX <= -canvas.width) {
+    backgroundX = 0;
+  }
+
+  // Draw ceiling lines
+  ctx.beginPath();
+  ctx.moveTo(0, 150); // Adjust the y-coordinate based on your desired height
+  ctx.lineTo(canvas.width, 150); // Adjust the y-coordinate based on your desired height
+  ctx.stroke();
+
+  // Draw player
+  ctx.drawImage(playerImg, player.x, player.y, player.width, player.height);
+
+  // Draw debris
+  ctx.drawImage(debrisImg, debris.x, debris.y, debris.width, debris.height);
+
+  // Move debris
+  debris.x -= debris.speed;
+
+  // Check for collision with ceiling
+  if (player.y < 150) { // Adjust the y-coordinate based on your desired height
+    player.y = 150; // Adjust the y-coordinate based on your desired height
+  }
+
+  // Check for collision with debris
+  if (
+    player.x < debris.x + debris.width &&
+    player.x + player.width > debris.x &&
+    player.y < debris.y + debris.height &&
+    player.y + player.height > debris.y
+  ) {
+    if (!gameOver) {
+      gameOver = true;
+      alert(`Game Over! You scoot boogied over ${debrisCounter} piles of poo before getting it everywhere!`);
+      resetGame();
+    }
+  }
+
+  // Reset debris position and update counter
+  if (debris.x + debris.width < 1) {
+    debris.x = canvas.width;
+    debrisCounter++;
+  }
+
+  // Display debris counter
+  ctx.fillStyle = 'black';
+  ctx.font = '20px Arial';
+  ctx.fillText(`Poo Scooted: ${debrisCounter}`, 10, 30);
+
+  if (!gameOver) {
+    requestAnimationFrame(draw);
+  }
+}
+
+
+    function jump() {
+      if (!player.jumping) {
+        player.jumping = true;
+
+        const jumpInterval = setInterval(() => {
+          player.y -= 10;
+          player.jumping = true;
+
+          if (player.y <= canvas.height - 180) {
+            clearInterval(jumpInterval);
+
+            const fallInterval = setInterval(() => {
+              player.y += 7;
+
+              if (player.y >= canvas.height - 80) {
+                player.y = canvas.height - 80;
+                player.jumping = false;
+                clearInterval(fallInterval);
+              }
+            }, 20);
+          }
+        }, 20);
+      }
+    }
+
+    function resetGame() {
+      clearInterval(debrisInterval);
+      gameOver = false;
+      debrisCounter = 0;
+      player.y = canvas.height - 40;
+      debris.x = canvas.width;
+
+      // Reload the page
+      location.reload();
+    }
+
+function moveDebris() {
+  debrisInterval = setInterval(() => {
+    debris.x -= debris.speed;
+
+    if (debris.x + debris.width < 0) {
+      debris.x = canvas.width;
+      debrisCounter++;
+
+      // Increase speed every 5 debris
+      if (debrisCounter % 5 === 0) {
+        debris.speed += 0.5;
+      }
+    }
+  }, 10);
+}
+
+
+    document.addEventListener('keydown', (event) => {
+      if (event.code === 'Space' && !gameOver) {
+        jump();
+      }
+    });
+
+    canvas.addEventListener('click', () => {
+      if (!gameOver) {
+        jump();
+      }
+    });
+
+    moveDebris();
+    draw();
+  </script>
+  <h1>Press the Space bar or click the mouse to jump!</h1>
+</body>
+</html>
