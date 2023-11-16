@@ -25,6 +25,9 @@
     const playerImg = new Image();
     playerImg.src = 'player.png';
 
+    const playerJumpImg = new Image();
+    playerJumpImg.src = 'player2.png';
+
     const debrisImg = new Image();
     debrisImg.src = 'debris.png';
 
@@ -42,88 +45,100 @@
       y: canvas.height - 40,
       width: 20,
       height: 10,
-      speed: 5,
+      speed: 6,
     };
 
     let debrisCounter = 0;
     let gameOver = false;
     let debrisInterval;
 
-  const backgroundImg = new Image();
-backgroundImg.src = 'background.jpg'; // Replace with your background image URL
+    const backgroundImg = new Image();
+    backgroundImg.src = 'background.jpg'; // Replace with your background image URL
 
-// Initial position of the background
-let backgroundX = 0;
+    // Initial position of the background
+    let backgroundX = 0;
 
-function draw() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  // Draw the scrolling background
-  ctx.drawImage(backgroundImg, backgroundX, 0, canvas.width, canvas.height);
-  ctx.drawImage(backgroundImg, backgroundX + canvas.width, 0, canvas.width, canvas.height);
+      // Draw the scrolling background
+      ctx.drawImage(backgroundImg, backgroundX, 0, canvas.width, canvas.height);
+      ctx.drawImage(backgroundImg, backgroundX + canvas.width, 0, canvas.width, canvas.height);
 
-  // Move the background
-  backgroundX -= debris.speed;
+      // Move the background
+      backgroundX -= debris.speed;
 
-  // Repeat the background
-  if (backgroundX <= -canvas.width) {
-    backgroundX = 0;
-  }
+      // Repeat the background
+      if (backgroundX <= -canvas.width) {
+        backgroundX = 0;
+      }
 
-  // Draw ceiling lines
-  ctx.beginPath();
-  ctx.moveTo(0, 150); // Adjust the y-coordinate based on your desired height
-  ctx.lineTo(canvas.width, 150); // Adjust the y-coordinate based on your desired height
-  ctx.stroke();
+      // Draw ceiling lines
+      ctx.beginPath();
+      ctx.moveTo(0, 150); // Adjust the y-coordinate based on your desired height
+      ctx.lineTo(canvas.width, 150); // Adjust the y-coordinate based on your desired height
+      ctx.stroke();
 
-  // Draw player
-  ctx.drawImage(playerImg, player.x, player.y, player.width, player.height);
+      // Draw player
+      if (player.jumping) {
+        ctx.drawImage(playerJumpImg, player.x, player.y, player.width, player.height);
+      } else {
+        ctx.drawImage(playerImg, player.x, player.y, player.width, player.height);
+      }
 
-  // Draw debris
-  ctx.drawImage(debrisImg, debris.x, debris.y, debris.width, debris.height);
+      // Draw debris
+      ctx.drawImage(debrisImg, debris.x, debris.y, debris.width, debris.height);
 
-  // Move debris
-  debris.x -= debris.speed;
+      // Move debris
+      debris.x -= debris.speed;
 
-  // Check for collision with ceiling
-  if (player.y < 150) { // Adjust the y-coordinate based on your desired height
-    player.y = 150; // Adjust the y-coordinate based on your desired height
-  }
+      // Check for collision with ceiling
+      if (player.y < 150) { // Adjust the y-coordinate based on your desired height
+        player.y = 150; // Adjust the y-coordinate based on your desired height
+      }
 
-  // Check for collision with debris
-  if (
-    player.x < debris.x + debris.width &&
-    player.x + player.width > debris.x &&
-    player.y < debris.y + debris.height &&
-    player.y + player.height > debris.y
-  ) {
-    if (!gameOver) {
-      gameOver = true;
-      alert(`Game Over! You scoot boogied over ${debrisCounter} piles of poo before getting it everywhere!`);
-      resetGame();
+      // Check for collision with debris
+      if (
+        player.x < debris.x + debris.width &&
+        player.x + player.width > debris.x &&
+        player.y < debris.y + debris.height &&
+        player.y + player.height > debris.y
+      ) {
+        if (!gameOver) {
+          gameOver = true;
+          alert(`Game Over! You scoot boogied over ${debrisCounter} piles of poo before getting it everywhere!`);
+          resetGame();
+        }
+      }
+
+      // Reset debris position and update counter
+      if (debris.x + debris.width < 1) {
+        debris.x = canvas.width;
+        debrisCounter++;
+
+        // Increase speed every 3 debris
+        if (debrisCounter % 5 === 0) {
+          debris.speed += 2;
+          console.log(`Debris Speed: ${debris.speed}`);
+        }
+      }
+
+      // Display debris counter
+      ctx.fillStyle = 'black';
+      ctx.font = '20px Arial';
+      ctx.fillText(`Poo Scooted: ${debrisCounter}`, 10, 30);
+
+      if (!gameOver) {
+        requestAnimationFrame(draw);
+      }
     }
-  }
-
-  // Reset debris position and update counter
-  if (debris.x + debris.width < 1) {
-    debris.x = canvas.width;
-    debrisCounter++;
-  }
-
-  // Display debris counter
-  ctx.fillStyle = 'black';
-  ctx.font = '20px Arial';
-  ctx.fillText(`Poo Scooted: ${debrisCounter}`, 10, 30);
-
-  if (!gameOver) {
-    requestAnimationFrame(draw);
-  }
-}
-
 
     function jump() {
       if (!player.jumping) {
         player.jumping = true;
+
+        // Change player image when jumping
+        playerImg.src = 'player2.png';
 
         const jumpInterval = setInterval(() => {
           player.y -= 10;
@@ -138,6 +153,10 @@ function draw() {
               if (player.y >= canvas.height - 80) {
                 player.y = canvas.height - 80;
                 player.jumping = false;
+
+                // Change player image back to normal
+                playerImg.src = 'player.png';
+
                 clearInterval(fallInterval);
               }
             }, 20);
@@ -157,22 +176,24 @@ function draw() {
       location.reload();
     }
 
-function moveDebris() {
-  debrisInterval = setInterval(() => {
-    debris.x -= debris.speed;
+    function moveDebris() {
+      debrisInterval = setInterval(() => {
+        // Randomize debris speed with a factor between -1 and 1
+        const speedFactor = (Math.random() * 2) - 1;
+        debris.x -= debris.speed + speedFactor;
 
-    if (debris.x + debris.width < 0) {
-      debris.x = canvas.width;
-      debrisCounter++;
+        if (debris.x + debris.width < 0) {
+          debris.x = canvas.width;
+          debrisCounter++;
 
-      // Increase speed every 5 debris
-      if (debrisCounter % 5 === 0) {
-        debris.speed += 0.5;
-      }
+          // Increase speed every 3 debris
+          if (debrisCounter % 5 === 0) {
+            debris.speed += .5;
+            console.log(`Debris Speed: ${debris.speed}`);
+          }
+        }
+      }, 200); // Increase the interval for better observation
     }
-  }, 10);
-}
-
 
     document.addEventListener('keydown', (event) => {
       if (event.code === 'Space' && !gameOver) {
@@ -189,6 +210,6 @@ function moveDebris() {
     moveDebris();
     draw();
   </script>
-  <h1>Tap the screen or press Space to jump!</h1>
+  <h1>Press the Space bar or click the mouse to jump!</h1>
 </body>
 </html>
