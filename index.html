@@ -16,7 +16,9 @@
   <title>Poo Scoot Boogie</title>
 </head>
 <body>
-  <h2>You're stuck in a scooter factory run by toddlers and poo is heading directly for you! Get out of there!</h2>
+  <h2>Talk about a sticky situation!</h2>
+  <p>You are trapped in an experimental scooter factory run by toddlers and there is poo coming at you from all directions!</p>
+  <p>Get out of there! Use the rocket boost scooter function to avoid the piles of poo!</p>
   <canvas id="gameCanvas" width="800" height="600"></canvas>
   <script>
     const canvas = document.getElementById('gameCanvas');
@@ -31,16 +33,16 @@
     const debrisImg = new Image();
     debrisImg.src = 'debris.png';
 
-const player = {
-  x: 50,
-  y: canvas.height - 100,
-  width: 50,
-  height: 75,
-  speed: 5,
-  jumping: false,
-  jumpHeight: 0, // Initial jump height
-  maxJumpHeight: 180, // Maximum jump height
-};
+    const player = {
+      x: 50,
+      y: canvas.height - 100,
+      width: 50,
+      height: 75,
+      speed: 5,
+      jumping: false,
+      jumpHeight: 0, // Initial jump height
+      maxJumpHeight: 180, // Maximum jump height
+    };
 
     const debris = {
       x: canvas.width,
@@ -137,48 +139,47 @@ const player = {
       }
     }
 
-function jump() {
-  if (!player.jumping && jumpHeight < player.maxJumpHeight) {
-    player.jumping = true;
+    function jump() {
+      if (!player.jumping && jumpHeight < player.maxJumpHeight) {
+        player.jumping = true;
 
-    // Change player image when jumping
-    playerImg.src = 'player2.png';
+        // Change player image when jumping
+        playerImg.src = 'player2.png';
 
-    jumpInterval = setInterval(() => {
-      player.y -= 10;
-      jumpHeight += 10; // Increment jump height
-      player.jumping = true;
+        jumpInterval = setInterval(() => {
+          player.y -= 10;
+          jumpHeight += 10; // Increment jump height
+          player.jumping = true;
 
-      if (jumpHeight >= player.maxJumpHeight) {
-        endJump();
+          if (jumpHeight >= player.maxJumpHeight) {
+            endJump();
+          }
+        }, 20);
       }
-    }, 20);
-  }
-}
+    }
 
-function endJump() {
-  if (player.jumping) {
-    clearInterval(jumpInterval);
+    function endJump() {
+      if (player.jumping) {
+        clearInterval(jumpInterval);
 
-    const fallInterval = setInterval(() => {
-      player.y += 7;
+        const fallInterval = setInterval(() => {
+          player.y += 7;
 
-      if (player.y >= canvas.height - 100) {
-        player.y = canvas.height - 100;
-        player.jumping = false;
+          if (player.y >= canvas.height - 100) {
+            player.y = canvas.height - 100;
+            player.jumping = false;
 
-        // Change player image back to normal
-        playerImg.src = 'player.png';
+            // Change player image back to normal
+            playerImg.src = 'player.png';
 
-        clearInterval(fallInterval);
+            clearInterval(fallInterval);
 
-        // Reset jump height when landing
-        jumpHeight = 0;
+            // Reset jump height when landing
+            jumpHeight = 0;
+          }
+        }, 20);
       }
-    }, 20);
-  }
-}
-
+    }
 
     function resetGame() {
       clearInterval(debrisInterval);
@@ -211,27 +212,33 @@ function endJump() {
       }, 200); // Increase the interval for better observation
     }
 
-    document.addEventListener('keydown', (event) => {
-      if (event.code === 'Space' && !gameOver) {
-        jump();
-      }
-    });
-
-    document.addEventListener('keyup', () => {
-      if (player.jumping) {
-        endJump();
-      }
-    });
-
-    canvas.addEventListener('click', () => {
+    function handleJumpStart() {
       if (!gameOver) {
         jump();
       }
+    }
+
+    function handleJumpEnd() {
+      if (player.jumping) {
+        endJump();
+      }
+    }
+
+    document.addEventListener('mousedown', handleJumpStart);
+    document.addEventListener('mouseup', handleJumpEnd);
+    document.addEventListener('keydown', (event) => {
+      if (event.code === 'Space' && !gameOver) {
+        handleJumpStart();
+      }
+    });
+    document.addEventListener('keyup', () => {
+      handleJumpEnd();
     });
 
     moveDebris();
     draw();
   </script>
-  <h1>Tap the screen, press Space, or click the mouse to jump!</h1>
+  <h1>Rocket Jump (Mobile): Tap Screen</h1>
+  <h1>Rocket Jump (PC): Press Space or Click Mouse1
 </body>
 </html>
