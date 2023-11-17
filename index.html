@@ -58,6 +58,8 @@
     let jumpInterval;
     let jumpHeight = 0;
 
+let highScore = localStorage.getItem('highScore') || 0;
+
     const backgroundImg = new Image();
     backgroundImg.src = 'background.jpg'; // Replace with your background image URL
 
@@ -112,7 +114,11 @@
       ) {
         if (!gameOver) {
           gameOver = true;
-          alert(`Game Over! You scoot boogied over ${debrisCounter} piles of poo before getting it everywhere!`);
+          if (debrisCounter > highScore) {
+            highScore = debrisCounter;
+            localStorage.setItem('highScore', highScore);
+          }
+          alert(`Game Over! You scoot boogied over ${debrisCounter} piles of poo! Current High Score: ${highScore}`);
           resetGame();
         }
       }
@@ -129,10 +135,13 @@
         }
       }
 
-      // Display debris counter
-      ctx.fillStyle = 'red';
-      ctx.font = '20px Comic Sans';
-      ctx.fillText(`Poo Scooted: ${debrisCounter}`, 10, 30);
+// Display debris counter and high score
+
+ctx.fillStyle = 'red';
+ctx.font = '30px Impact';
+ctx.fillText(`Poo Scooted: ${debrisCounter} | High Score: ${highScore}`, 10, 30);
+
+
 
       if (!gameOver) {
         requestAnimationFrame(draw);
