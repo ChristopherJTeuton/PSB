@@ -244,12 +244,14 @@ ctx.fillText(`Poo Scooted: ${debrisCounter} | High Score: ${highScore}`, 10, 30)
       handleJumpEnd();
     });
 
-    canvas.addEventListener('touchstart', () => {
-      handleJumpStart();
+    canvas.addEventListener('touchstart', (event) => {
+    event.preventDefault();
+    handleJumpStart();
     });
 
-    canvas.addEventListener('touchend', () => {
-      handleJumpEnd();
+    canvas.addEventListener('touchend', (event) => {
+    event.preventDefault();
+    handleJumpEnd();
     });
 
     moveDebris();
