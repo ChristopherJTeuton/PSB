@@ -235,6 +235,14 @@
       handleJumpEnd();
     });
 
+    canvas.addEventListener('touchstart', () => {
+      handleJumpStart();
+    });
+
+    canvas.addEventListener('touchend', () => {
+      handleJumpEnd();
+    });
+
     moveDebris();
     draw();
   </script>
