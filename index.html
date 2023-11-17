@@ -31,14 +31,16 @@
     const debrisImg = new Image();
     debrisImg.src = 'debris.png';
 
-    const player = {
-      x: 50,
-      y: canvas.height - 40,
-      width: 50,
-      height: 50,
-      speed: 5,
-      jumping: false,
-    };
+const player = {
+  x: 50,
+  y: canvas.height - 100,
+  width: 50,
+  height: 75,
+  speed: 5,
+  jumping: false,
+  jumpHeight: 0, // Initial jump height
+  maxJumpHeight: 180, // Maximum jump height
+};
 
     const debris = {
       x: canvas.width,
@@ -51,6 +53,8 @@
     let debrisCounter = 0;
     let gameOver = false;
     let debrisInterval;
+    let jumpInterval;
+    let jumpHeight = 0;
 
     const backgroundImg = new Image();
     backgroundImg.src = 'background.jpg'; // Replace with your background image URL
@@ -93,16 +97,16 @@
       debris.x -= debris.speed;
 
       // Check for collision with ceiling
-      if (player.y < 150) { // Adjust the y-coordinate based on your desired height
-        player.y = 150; // Adjust the y-coordinate based on your desired height
+      if (player.y < 420) { // Adjust the y-coordinate based on your desired height
+        player.y = 420; // Adjust the y-coordinate based on your desired height
       }
 
       // Check for collision with debris
       if (
-        player.x < debris.x + debris.width &&
-        player.x + player.width > debris.x &&
-        player.y < debris.y + debris.height &&
-        player.y + player.height > debris.y
+        player.x + 12 < debris.x + debris.width && // Reduce collision window on the left side
+        player.x + player.width - 12 > debris.x && // Reduce collision window on the right side
+        player.y + 10 < debris.y + debris.height && // Reduce collision window on the top side
+        player.y + player.height - 10 > debris.y // Reduce collision window on the bottom side
       ) {
         if (!gameOver) {
           gameOver = true;
@@ -124,8 +128,8 @@
       }
 
       // Display debris counter
-      ctx.fillStyle = 'black';
-      ctx.font = '20px Arial';
+      ctx.fillStyle = 'red';
+      ctx.font = '20px Comic Sans';
       ctx.fillText(`Poo Scooted: ${debrisCounter}`, 10, 30);
 
       if (!gameOver) {
@@ -133,45 +137,57 @@
       }
     }
 
-    function jump() {
-      if (!player.jumping) {
-        player.jumping = true;
+function jump() {
+  if (!player.jumping && jumpHeight < player.maxJumpHeight) {
+    player.jumping = true;
 
-        // Change player image when jumping
-        playerImg.src = 'player2.png';
+    // Change player image when jumping
+    playerImg.src = 'player2.png';
 
-        const jumpInterval = setInterval(() => {
-          player.y -= 10;
-          player.jumping = true;
+    jumpInterval = setInterval(() => {
+      player.y -= 10;
+      jumpHeight += 10; // Increment jump height
+      player.jumping = true;
 
-          if (player.y <= canvas.height - 180) {
-            clearInterval(jumpInterval);
-
-            const fallInterval = setInterval(() => {
-              player.y += 7;
-
-              if (player.y >= canvas.height - 80) {
-                player.y = canvas.height - 80;
-                player.jumping = false;
-
-                // Change player image back to normal
-                playerImg.src = 'player.png';
-
-                clearInterval(fallInterval);
-              }
-            }, 20);
-          }
-        }, 20);
+      if (jumpHeight >= player.maxJumpHeight) {
+        endJump();
       }
-    }
+    }, 20);
+  }
+}
+
+function endJump() {
+  if (player.jumping) {
+    clearInterval(jumpInterval);
+
+    const fallInterval = setInterval(() => {
+      player.y += 7;
+
+      if (player.y >= canvas.height - 100) {
+        player.y = canvas.height - 100;
+        player.jumping = false;
+
+        // Change player image back to normal
+        playerImg.src = 'player.png';
+
+        clearInterval(fallInterval);
+
+        // Reset jump height when landing
+        jumpHeight = 0;
+      }
+    }, 20);
+  }
+}
+
 
     function resetGame() {
       clearInterval(debrisInterval);
+      clearInterval(jumpInterval); // Clear the jump interval on game reset
       gameOver = false;
       debrisCounter = 0;
       player.y = canvas.height - 40;
       debris.x = canvas.width;
-
+      jumpHeight = 0; // Reset jump height
       // Reload the page
       location.reload();
     }
@@ -198,6 +214,12 @@
     document.addEventListener('keydown', (event) => {
       if (event.code === 'Space' && !gameOver) {
         jump();
+      }
+    });
+
+    document.addEventListener('keyup', () => {
+      if (player.jumping) {
+        endJump();
       }
     });
 
