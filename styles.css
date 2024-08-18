@@ -1,12 +1,139 @@
-<style>
-  body {
-    margin: 0;
-    overflow: hidden;
-  }
+body {
+  margin: 0;
+  overflow: hidden;
+  background-color: #000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  font-family: 'Arial', sans-serif;
+  position: relative;
+}
 
-  canvas {
-    display: block;
-    width: 100%;
-    height: 100%;
+.game-container {
+  background-color: rgba(0, 0, 0, 0.7);
+  border: 5px solid #ff00ff;
+  border-radius: 10px;
+  box-shadow: 0 0 20px #ff00ff;
+  padding: 20px;
+  text-align: center;
+  width: 840px;
+  z-index: 2;
+}
+
+.game-title {
+  font-family: 'Press Start 2P', cursive;
+  font-size: 2.5em;
+  color: #33ccff;
+  text-shadow:
+    0 0 7px #c718a1,
+    0 0 10px #c718a1,
+    0 0 21px #c718a1,
+    0 0 42px #c718a1,
+    0 0 82px #c718a1,
+    0 0 92px #c718a1,
+    0 0 102px #c718a1,
+    0 0 151px #c718a1;
+  margin-bottom: 20px;
+}
+
+.start-screen, .game-over-screen {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: rgba(255, 255, 255, 0.9);
+  border: 2px solid #ff00ff;
+  border-radius: 5px;
+  padding: 20px;
+  z-index: 10;
+}
+
+.start-screen p, .game-over-screen p {
+  margin: 10px 0;
+  font-family: 'Georgia', serif;
+}
+
+#start-button, #restart-button {
+  margin-top: 20px;
+  padding: 10px 20px;
+  font-size: 1em;
+  background-color: #33ccff;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  box-shadow: 0 0 10px #33ccff;
+  font-family: 'Press Start 2P', cursive;
+}
+
+#start-button:hover, #restart-button:hover {
+  background-color: #555;
+}
+
+canvas {
+  display: block;
+  background-color: #fff;
+  border: 2px solid #333;
+  border-radius: 5px;
+  margin: 20px auto;
+}
+
+.instructions {
+  margin-top: 20px;
+  font-family: 'Courier New', Courier, monospace;
+  color: #ff00ff;
+}
+
+.game-over-screen {
+  display: none;
+}
+
+
+.canvas-background {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  background: linear-gradient(135deg, #ff00ff, #33ccff);
+  opacity: 0.3;
+  z-index: 1;
+}
+
+.grid {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 200%;
+  height: 200%;
+  background: repeating-linear-gradient(
+    45deg,
+    #ff00ff 0,
+    #ff00ff 1px,
+    transparent 1px,
+    transparent 40px
+  ),
+  repeating-linear-gradient(
+    -45deg,
+    #33ccff 0,
+    #33ccff 1px,
+    transparent 1px,
+    transparent 40px
+  );
+  animation: scrollGrid 10s linear infinite;
+  z-index: 0;
+}
+
+@keyframes scrollGrid {
+  0% {
+    transform: translate(0, 0);
   }
-</style>
+  100% {
+    transform: translate(-50%, -50%);
+  }
+}
